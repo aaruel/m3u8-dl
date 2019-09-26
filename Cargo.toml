@@ -1,0 +1,15 @@
+[package]
+name = "m3u8-dl"
+version = "0.1.0"
+authors = ["aaruel <wmakit88@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+clap = "2.33.0"
+m3u8-rs = "1.0.5"
+dialoguer = "0.4.0"
+reqwest = "0.9.20"
+mpeg2ts = "0.1.1"
+trackable = "0.2.23"
+indicatif = "0.12.0"
+lazy_static = "*"

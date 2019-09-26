@@ -5,21 +5,11 @@ extern crate trackable;
 extern crate lazy_static;
 
 use clap::{App, Arg};
-use m3u8_rs::{
-    playlist::Playlist,
-    playlist::MasterPlaylist,
-    playlist::MediaPlaylist
-};
-use std::{
-    path::{Path},
-    fs::{File},
-    io::{Read}
-};
 use dialoguer::{theme::ColorfulTheme, Select};
-use mpeg2ts::{
-    ts::{ReadTsPacket, TsPacketReader, TsPacketWriter, WriteTsPacket}
-};
 use indicatif::ProgressBar;
+use m3u8_rs::{playlist::MasterPlaylist, playlist::MediaPlaylist, playlist::Playlist};
+use mpeg2ts::ts::{ReadTsPacket, TsPacketReader, TsPacketWriter, WriteTsPacket};
+use std::{fs::File, io::Read, path::Path};
 
 lazy_static! {
     static ref CLIENT: reqwest::Client = reqwest::Client::new();
@@ -34,7 +24,7 @@ fn process_master_playlist(mp: &MasterPlaylist) {
             Some(r) => {
                 variants.push(&r);
                 uris.push(&variant.uri);
-            },
+            }
             _ => {}
         }
     }
@@ -60,12 +50,12 @@ fn process_media_playlist(mp: &MediaPlaylist) {
         let buffer = download_ts(&segment.uri);
         let mem = match buffer {
             Ok(b) => b,
-            e => panic!("Error when downloading stream blobs: {:#?}", e)
+            e => panic!("Error when downloading stream blobs: {:#?}", e),
         };
         let mut reader = TsPacketReader::new(mem.as_slice());
         while let Some(packet) = track_try_unwrap!(reader.read_ts_packet()) {
             track_try_unwrap!(writer.write_ts_packet(&packet));
-        };
+        }
         pb.inc(1);
     }
     pb.finish_with_message("Finished downloading!")
@@ -86,7 +76,7 @@ fn load_m3u8(bytes: Vec<u8>) {
     match m3u8_rs::parse_playlist_res(&bytes) {
         Ok(Playlist::MasterPlaylist(pl)) => process_master_playlist(&pl),
         Ok(Playlist::MediaPlaylist(pl)) => process_media_playlist(&pl),
-        Err(e) => println!("Error: {:#?}", e)
+        Err(e) => println!("Error: {:#?}", e),
     }
 }
 
@@ -103,16 +93,16 @@ fn main() {
         .about("Downloads m3u8 playlist video/audio from file or net")
         .arg(
             Arg::with_name("file")
-            .short("f")
-            .long("file")
-            .value_name("FILE")
-            .help("Load a m3u8 file from the file system")
+                .short("f")
+                .long("file")
+                .value_name("FILE")
+                .help("Load a m3u8 file from the file system"),
         )
         .get_matches();
-    
+
     let file = matches.value_of("file").unwrap_or("");
     match file {
-        "" => {},
-        f => load_file(f)
+        "" => {}
+        f => load_file(f),
     }
 }
